@@ -1,0 +1,644 @@
+{
+  "name": "AI Credit Card Data Harvester",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $('On form submission1').item.json['Official Page URL'] }} ",
+        "responseFormat": "string",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            }
+          ]
+        }
+      },
+      "id": "c9114b85-864e-4724-8832-5b782954d529",
+      "name": "Fetch Product Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        820
+      ],
+      "id": "c1ef7864-bb3c-4bac-a303-3bc5a80f3871",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "yswXGUA7dl5voMpF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        800
+      ],
+      "id": "ca3fee94-6e1f-40f2-a19f-38ae2079b33f",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "yswXGUA7dl5voMpF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        960,
+        1360
+      ],
+      "id": "71547ba7-2ec9-45b8-a25d-3537620c045e",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "yswXGUA7dl5voMpF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": " AI Agent For Credit Card Data Harvester",
+        "formDescription": "⚠️ Recommended Form Description (Final Version):\n⚠️ Important Notice:\nSome official credit card URLs may block automated access from bots or scripts.\nIf your URL fails to fetch data or shows a \"403 Forbidden\" error, it may be due to website restrictions.\n\n✅ Please try using a different credit card product page or a more accessible bank link.\n\n📧 Email Delivery:\nYou will receive the extracted details of your credit card via email within 2 minutes.\n\n⏳ If you don't receive anything, please try again.\n\n❗ Still not getting the email? Kindly try with a credit card from a different bank.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Address",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Official Page URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "MITC/KFS PDF File",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        620
+      ],
+      "id": "290afc95-df4e-4be1-acae-cf0a265f1d16",
+      "name": "On form submission1",
+      "webhookId": "6a449f97-a616-4f5e-8ac0-418e85c2a781"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "=You are an intelligent data extractor.\n\nExtract the following fields from the given credit card MITC document text.\n\nReturn your answer strictly in JSON format, using the exact field names listed below as keys. Do not include explanations or additional text.\nInclude a \"citation\" object with a page number (for PDF) or a short HTML snippet / CSS selector (for webpage) next to each value.\n\n\nList of fields:\n1. Card Name\n2. Issuer / Bank\n3. Network(s)\n4. Min Income Required\n5. Allowed Employment (Salaried | Self-Emp | Both)\n6. Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\n7. Age Range\n8. Credit Score (CIBIL/CIR)\n9. Special Eligibility Note\n10. Joining Fee (₹)\n11. Annual Fee (₹)\n12. Annual-Fee Waiver Rule\n13. Forex Mark-up (%)\n14. APR on Purchases (% p.a.)\n15. Cash-Advance Fee\n16. Late-Payment Fee Slab\n17. Reward Redemption Fee\n18. Rent / Wallet Load Fee\n19. Railway or Fuel Waiver\n20. Any Other Important Fee\n21. Link to Official MITC / T&C PDF\n22. Base Reward Rate\n23. Reward Redemption Options\n24. Top-Line Benefit List\n25. Welcome Offer\n26. Insurance Included\n27. Key USP #1\n28. Key USP #2\n29. Key USP #3\n\n\nReturn ONLY a valid JSON object. Do NOT include markdown formatting, code blocks, triple quotes, or explanations. STRICT INSTRUCTIONS:\n- Do NOT use markdown (```json or ```).\n- Do NOT include any extra text, comments, or explanation.\n- Do NOT wrap output in triple quotes or code blocks.\n- Return ONLY the JSON content directly.\n\nYour output should look like:\nFormat:\n{\"Card Name\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  \"Issuer / Bank\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  ...\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        620
+      ],
+      "id": "323f286c-193f-45b9-b333-1b9841def778",
+      "name": "AI Agent For URL"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Extract from MITC_KFS_PDFs').item.json.text }}",
+        "options": {
+          "systemMessage": "=You are an intelligent data extractor.\n\nExtract the following fields from the given credit card MITC document text. and extract this card deatil {{ $('Creating JSON & Test Case').item.json['Card Name'].value }} in  this pdf text.\n\nReturn your answer strictly in JSON format, using the exact field names listed below as keys. Do not include explanations or additional text.\nInclude a \"citation\" object with a page number (for PDF) or a short HTML snippet / CSS selector (for webpage) next to each value.\n\n\nList of fields:\n1. Card Name\n2. Issuer / Bank\n3. Network(s)\n4. Min Income Required\n5. Allowed Employment (Salaried | Self-Emp | Both)\n6. Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\n7. Age Range\n8. Credit Score (CIBIL/CIR)\n9. Special Eligibility Note\n10. Joining Fee (₹)\n11. Annual Fee (₹)\n12. Annual-Fee Waiver Rule\n13. Forex Mark-up (%)\n14. APR on Purchases (% p.a.)\n15. Cash-Advance Fee\n16. Late-Payment Fee Slab\n17. Reward Redemption Fee\n18. Rent / Wallet Load Fee\n19. Railway or Fuel Waiver\n20. Any Other Important Fee\n21. Link to Official MITC / T&C PDF\n22. Base Reward Rate\n23. Reward Redemption Options\n24. Top-Line Benefit List\n25. Welcome Offer\n26. Insurance Included\n27. Key USP #1\n28. Key USP #2\n29. Key USP #3\n\n\nReturn ONLY a valid JSON object. Do NOT include markdown formatting, code blocks, triple quotes, or explanations. STRICT INSTRUCTIONS:\n- Do NOT use markdown (```json or ```).\n- Do NOT include any extra text, comments, or explanation.\n- Do NOT wrap output in triple quotes or code blocks.\n- Return ONLY the JSON content directly.\n\nYour output should look like:\nFormat:\n```json\n{\n  \"Card Name\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  \"Issuer / Bank\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  ...\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2500,
+        620
+      ],
+      "id": "743f1ca3-2e87-408e-9f76-37a9ac9ad223",
+      "name": "AI Agent For PDF"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0c3d3ed-fc31-4878-8721-fecfdfcb2709",
+              "name": "html data",
+              "value": "={{ $('AI Agent For URL').item.json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "591dc711-cbe8-44d4-a516-5c40afcc7b41",
+              "name": "PDF data",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2960,
+        820
+      ],
+      "id": "15aba43e-29d1-438b-a6ba-8ac7b23c31ad",
+      "name": "Naming Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=HTML DATA - {{ $json['html data'] }}\nPDF DATA - {{ $json['PDF data'] }}",
+        "options": {
+          "systemMessage": "=You are a smart and precise data merging assistant.\n\n\nYou are given two structured JSON objects representing the same credit card:\n\npdf_output: data extracted from the official PDF (may have some missing fields)\n\nhtml_output: data extracted from the bank's product web page (may have different or complementary values)\n\nInclude a \"citation\" object with a page number (for PDF) or a short HTML snippet / CSS selector (for webpage) next to each value.\n\nEach JSON contains up to 29 fields. Your task is to create a merged JSON object using these strict rules:\n\nFor each field, check if a value exists in pdf_output that is:\n\nnot null\n\nnot an empty string\n\nnot equal to \"Not mentioned\", \"Not specified\", \"N/A\", \"NA\", or similar invalid placeholders\n\nIf such a valid value exists, use it in the final output.\n\nIf the value is missing or invalid in pdf_output, fall back to the corresponding value in html_output, if valid.\n\nIf the field is missing or invalid in both, return \"Not mentioned\" as the value.\n\nMaintain the exact field names and order listed below.\n\nThe output must be a flat JSON object with direct values (no nested \"value\" or \"citation\" objects).\n\nReturn a clean, final JSON object with the following 29 fields:\n\nCard Name\n\nIssuer / Bank\n\nNetwork(s)\n\nMin Income Required\n\nAllowed Employment (Salaried | Self-Emp | Both)\n\nPrimary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\n\nAge Range\n\nCredit Score (CIBIL/CIR)\n\nSpecial Eligibility Note\n\nJoining Fee (₹)\n\nAnnual Fee (₹)\n\nAnnual-Fee Waiver Rule\n\nForex Mark-up (%)\n\nAPR on Purchases (% p.a.)\n\nCash-Advance Fee\n\nLate-Payment Fee Slab\n\nReward Redemption Fee\n\nRent / Wallet Load Fee\n\nRailway or Fuel Waiver\n\nAny Other Important Fee\n\nLink to Official MITC / T&C PDF\n\nBase Reward Rate\n\nReward Redemption Options\n\nTop-Line Benefit List\n\nWelcome Offer\n\nInsurance Included\n\nKey USP #1\n\nKey USP #2\n\nKey USP #3\n\nSTRICT OUTPUT RULES:\n\nReturn only a valid JSON object\n\nDo NOT include triple backticks\n\nDo NOT include markdown formatting like ```json\n\nDo NOT include any explanation or text before/after the JSON\n\nOutput should start directly with { and end with }\n\nExample output format:\n{\n  \"Card Name\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  \"Issuer / Bank\": { \"value\": \"\", \"citation\": \"p. 1\" },\n  ...\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        1100
+      ],
+      "id": "af65b967-ec04-443e-8e77-bf6de525baab",
+      "name": "AI Agent For Merging Assistant"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "MITC_KFS_PDF_File",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        620
+      ],
+      "id": "cd3674a6-cd9d-4d80-8116-d260d78ff49e",
+      "name": "Extract from MITC_KFS_PDFs"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawOutput = items[0].json.output;\n\n\nlet ai;\ntry {\n  ai = JSON.parse(rawOutput);\n} catch (error) {\n  return [{ json: { error: \"Invalid JSON from AI\", details: error.message } }];\n}\n\n//  Unit test for \"Joining Fee (₹)\"\n const joiningFee = ai[\"Joining Fee (₹)\"]?.value ?? ai[\"Joining Fee (₹)\"];\n// const expectedJoiningFee = \"Rs. 500\"; \n\n//if (joiningFee !== expectedJoiningFee) {\n  //throw new Error(` Unit Test Failed: Joining Fee - expected \"${expectedJoiningFee}\", got \"${joiningFee}\"`);\n//}\n\n\n//console.log(\" Unit Test Passed: Joining Fee is correct\");\n\n// Return 29 fields in separate variables\nreturn [{\n  json: {\n    \"Card Name\": ai[\"Card Name\"] ?? \"Not mentioned\",\n    \"Issuer / Bank\": ai[\"Issuer / Bank\"] ?? \"Not mentioned\",\n    \"Network(s)\": ai[\"Network(s)\"] ?? \"Not mentioned\",\n    \"Min Income Required\": ai[\"Min Income Required\"] ?? \"Not mentioned\",\n    \"Allowed Employment\": ai[\"Allowed Employment (Salaried | Self-Emp | Both)\"] ?? \"Not mentioned\",\n    \"Primary Tags\": Array.isArray(ai[\"Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\"]) ? ai[\"Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\"].join(\", \") : \"Not mentioned\",\n    \"Age Range\": ai[\"Age Range\"] ?? \"Not mentioned\",\n    \"Credit Score\": ai[\"Credit Score (CIBIL/CIR)\"] ?? \"Not mentioned\",\n    \"Special Eligibility Note\": ai[\"Special Eligibility Note\"] ?? \"Not mentioned\",\n    \"Joining Fee (₹)\": joiningFee ?? \"Not mentioned\",\n    \"Annual Fee (₹)\": ai[\"Annual Fee (₹)\"]?.value ?? ai[\"Annual Fee (₹)\"] ?? \"Not mentioned\",\n    \"Annual-Fee Waiver Rule\": ai[\"Annual-Fee Waiver Rule\"] ?? \"Not mentioned\",\n    \"Forex Mark-up (%)\": ai[\"Forex Mark-up (%)\"] ?? \"Not mentioned\",\n    \"APR on Purchases (% p.a.)\": ai[\"APR on Purchases (% p.a.)\"] ?? \"Not mentioned\",\n    \"Cash-Advance Fee\": ai[\"Cash-Advance Fee\"] ?? \"Not mentioned\",\n    \"Late-Payment Fee Slab\": ai[\"Late-Payment Fee Slab\"] ?? \"Not mentioned\",\n    \"Reward Redemption Fee\": ai[\"Reward Redemption Fee\"] ?? \"Not mentioned\",\n    \"Rent / Wallet Load Fee\": ai[\"Rent / Wallet Load Fee\"] ?? \"Not mentioned\",\n    \"Railway or Fuel Waiver\": ai[\"Railway or Fuel Waiver\"] ?? \"Not mentioned\",\n    \"Any Other Important Fee\": ai[\"Any Other Important Fee\"] ?? \"Not mentioned\",\n    \"Link to Official MITC / T&C PDF\": ai[\"Link to Official MITC / T&C PDF\"] ?? \"Not mentioned\",\n    \"Base Reward Rate\": ai[\"Base Reward Rate\"] ?? \"Not mentioned\",\n    \"Reward Redemption Options\": ai[\"Reward Redemption Options\"] ?? \"Not mentioned\",\n    \"Top-Line Benefit List\": ai[\"Top-Line Benefit List\"] ?? \"Not mentioned\",\n    \"Welcome Offer\": ai[\"Welcome Offer\"] ?? \"Not mentioned\",\n    \"Insurance Included\": ai[\"Insurance Included\"] ?? \"Not mentioned\",\n    \"Key USP #1\": ai[\"Key USP #1\"] ?? \"Not mentioned\",\n    \"Key USP #2\": ai[\"Key USP #2\"] ?? \"Not mentioned\",\n    \"Key USP #3\": ai[\"Key USP #3\"] ?? \"Not mentioned\"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        620
+      ],
+      "id": "bc001688-02dd-4784-9dfa-6828f18eda81",
+      "name": "Creating JSON & Test Case"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Step 1: Read the JSON string from AI output\nconst rawOutput = items[0].json.output;\n\n// Step 2: Convert string to actual JSON object\nlet ai;\ntry {\n  ai = JSON.parse(rawOutput);\n} catch (error) {\n  return [{ json: { error: \"Invalid JSON from AI\", details: error.message } }];\n}\n\n// Step 3: Return 29 fields in separate variables\nreturn [{\n  json: {\n    \"Card Name\": ai[\"Card Name\"] ?? \"Not mentioned\",\n    \"Issuer / Bank\": ai[\"Issuer / Bank\"] ?? \"Not mentioned\",\n    \"Network(s)\": ai[\"Network(s)\"] ?? \"Not mentioned\",\n    \"Min Income Required\": ai[\"Min Income Required\"] ?? \"Not mentioned\",\n    \"Allowed Employment\": ai[\"Allowed Employment (Salaried | Self-Emp | Both)\"] ?? \"Not mentioned\",\n    \"Primary Tags\": Array.isArray(ai[\"Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\"]) ? ai[\"Primary Tags (Fuel, Shopping, Dining, Travel, Utilities, Grocery, Online Food)\"].join(\", \") : \"Not mentioned\",\n    \"Age Range\": ai[\"Age Range\"] ?? \"Not mentioned\",\n    \"Credit Score\": ai[\"Credit Score (CIBIL/CIR)\"] ?? \"Not mentioned\",\n    \"Special Eligibility Note\": ai[\"Special Eligibility Note\"] ?? \"Not mentioned\",\n    \"Joining Fee (₹)\": ai[\"Joining Fee (₹)\"]?.value ?? ai[\"Joining Fee (₹)\"] ?? \"Not mentioned\",\n    \"Annual Fee (₹)\": ai[\"Annual Fee (₹)\"]?.value ?? ai[\"Annual Fee (₹)\"] ?? \"Not mentioned\",\n    \"Annual-Fee Waiver Rule\": ai[\"Annual-Fee Waiver Rule\"] ?? \"Not mentioned\",\n    \"Forex Mark-up (%)\": ai[\"Forex Mark-up (%)\"] ?? \"Not mentioned\",\n    \"APR on Purchases (% p.a.)\": ai[\"APR on Purchases (% p.a.)\"] ?? \"Not mentioned\",\n    \"Cash-Advance Fee\": ai[\"Cash-Advance Fee\"] ?? \"Not mentioned\",\n    \"Late-Payment Fee Slab\": ai[\"Late-Payment Fee Slab\"] ?? \"Not mentioned\",\n    \"Reward Redemption Fee\": ai[\"Reward Redemption Fee\"] ?? \"Not mentioned\",\n    \"Rent / Wallet Load Fee\": ai[\"Rent / Wallet Load Fee\"] ?? \"Not mentioned\",\n    \"Railway or Fuel Waiver\": ai[\"Railway or Fuel Waiver\"] ?? \"Not mentioned\",\n    \"Any Other Important Fee\": ai[\"Any Other Important Fee\"] ?? \"Not mentioned\",\n    \"Link to Official MITC / T&C PDF\": ai[\"Link to Official MITC / T&C PDF\"] ?? \"Not mentioned\",\n    \"Base Reward Rate\": ai[\"Base Reward Rate\"] ?? \"Not mentioned\",\n    \"Reward Redemption Options\": ai[\"Reward Redemption Options\"] ?? \"Not mentioned\",\n    \"Top-Line Benefit List\": ai[\"Top-Line Benefit List\"] ?? \"Not mentioned\",\n    \"Welcome Offer\": ai[\"Welcome Offer\"] ?? \"Not mentioned\",\n    \"Insurance Included\": ai[\"Insurance Included\"] ?? \"Not mentioned\",\n    \"Key USP #1\": ai[\"Key USP #1\"] ?? \"Not mentioned\",\n    \"Key USP #2\": ai[\"Key USP #2\"] ?? \"Not mentioned\",\n    \"Key USP #3\": ai[\"Key USP #3\"] ?? \"Not mentioned\"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        1100
+      ],
+      "id": "0351807f-9852-4ff3-8da8-30d5178b15d7",
+      "name": "Creating JSON"
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1820,
+        1100
+      ],
+      "id": "cfc20d71-4923-48ce-8b22-9683e29c4b43",
+      "name": "JSON To CSV"
+    },
+    {
+      "parameters": {
+        "fromEmail": "namadhawan@gmail.com",
+        "toEmail": "={{ $('On form submission1').item.json['Email Address'] }}",
+        "subject": "🎉 Your Credit Card Details Have Been Successfully Extracted!",
+        "html": "=<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333;\">\n  <div style=\"background-color: #f7f9fc; border: 1px solid #dde3ec; border-radius: 8px; padding: 30px; max-width: 650px; margin: auto;\">\n    \n    <h2 style=\"color: #0a66c2; text-align: center;\">🎉 Credit Card Data Extracted Successfully!</h2>\n    \n    <p>Hi <strong>{{ $('On form submission1').item.json.Name || \"there\" }}</strong>,</p>\n    \n    <p>Thank you for using our <strong>Credit Card Data Harvester</strong>.</p>\n\n    <p>We’ve successfully extracted the details from the document you submitted:</p>\n    \n    <ul style=\"line-height: 1.6;\">\n      <li><strong>File:</strong> {{ $('On form submission1').item.json['MITC/KFS PDF File'][0].filename || \"MITC/KFS PDF File\" }}</li>\n      <li><strong>Card URL:</strong> <a href=\"{{ $('On form submission1').item.json['Official Page URL'] || \"Offcial Page URL\" }}\" style=\"color: #0a66c2;\">Click here</a></li>\n    </ul>\n    \n    <p>The structured data from your card has been processed and attached. It includes:</p>\n    \n    <ul style=\"line-height: 1.6;\">\n      <li>💳 Legal charges (e.g., Joining Fee, Annual Fee, Late Payment Fee)</li>\n      <li>🧾 Eligibility criteria</li>\n      <li>🎁 Rewards and Benefits</li>\n      <li>✨ Key USPs and additional features</li>\n    </ul>\n\n    <p style=\"margin-top: 20px;\">\n      📎 <strong>Attached:</strong> Your extracted data file in downloadable format.\n    </p>\n\n    <hr style=\"margin: 30px 0;\">\n\n    <p style=\"font-size: 0.9em; color: #666;\">\n      If you notice any issues or want to provide feedback, feel free to reply to this email.\n    </p>\n\n    <p style=\"margin-top: 30px;\">\n      Regards,<br>\n      <strong>Dhawan Nama</strong><br>\n      <em>AI-powered Card Data Assistant</em>\n    </p>\n  </div>\n</div>\n",
+        "options": {
+          "appendAttribution": false,
+          "attachments": "data"
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2120,
+        1100
+      ],
+      "id": "cfc41c9f-0399-4d86-8acd-75bd6fce3d3d",
+      "name": "Send email1",
+      "webhookId": "e63d3826-2081-41db-ba5c-81b432b5152d",
+      "executeOnce": true,
+      "credentials": {
+        "smtp": {
+          "id": "lw44e1mWdSZsrYT3",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI Credit Card Data Harvester \n",
+        "height": 1340,
+        "width": 2620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        280
+      ],
+      "id": "3f99c6fd-b2f4-4e7a-be48-e91a94149e6f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 🎯 Triggers the flow and collects input from the user (Name, Email, URL, PDF).\n",
+        "height": 380,
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        460
+      ],
+      "id": "fae87075-dee2-4e70-8032-4a43ef8ba664",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 📄 Extracts raw text from the uploaded MITC/KFS PDF file.",
+        "height": 380,
+        "width": 260,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        460
+      ],
+      "id": "51e92f35-9cf2-4899-a562-030f3b7e9be8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 🌐 Fetches the official credit card product page using the provided URL.\n",
+        "height": 380,
+        "width": 300,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        460
+      ],
+      "id": "b15ce5aa-16e0-4bcd-b35f-778346bfaa5f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 🧪 Parses and partially validates the AI output (JSON format) from product page.",
+        "height": 400,
+        "width": 300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        440
+      ],
+      "id": "b9eaec53-651e-453d-a276-e3b68138d522",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## 🗂 Combines both AI outputs (HTML + PDF) into unified variables for merging.",
+        "height": 400,
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        640
+      ],
+      "id": "1cb4f443-1c38-4366-8623-0d39953ab3e1",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## 🧠 Merges both JSONs into a final consistent format using rules and AI logic.",
+        "height": 380,
+        "width": 260,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        1040
+      ],
+      "id": "1d3ac0c0-e898-47e8-ae17-ba294472b1b2",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## 📁 Converts the final JSON into a CSV file for attachment.\n",
+        "height": 380,
+        "width": 300,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1740,
+        1040
+      ],
+      "id": "11dcc2cd-bfd3-42ab-b6f0-37234b9473a9",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## 📧 Sends a beautiful HTML email to the user with the extracted file attached.",
+        "height": 380,
+        "width": 260,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        1040
+      ],
+      "id": "e3c2199c-7069-4b1a-9a45-1d1e48f31629",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 Uses LLM to extract structured credit card details from the HTML product page with LLM-powered extraction.",
+        "height": 480,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        460
+      ],
+      "id": "210bb3d3-9654-4ecf-8029-6e066d15bca1",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 Uses LLM to extract structured credit card details from the HTML product page with LLM-powered extraction.",
+        "height": 520,
+        "width": 420,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        440
+      ],
+      "id": "1b9c1e77-d88c-42d6-8cf8-14894164efab",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "## 🧠 Merges both JSONs into a final consistent format using rules and AI logic with LLM-powered extraction.",
+        "height": 660,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        860
+      ],
+      "id": "c1f93479-5faf-4d46-8dc6-f1e75f236625",
+      "name": "Sticky Note11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetch Product Page": {
+      "main": [
+        [
+          {
+            "node": "AI Agent For URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent For PDF",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent For URL",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent For Merging Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Extract from MITC_KFS_PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent For URL": {
+      "main": [
+        [
+          {
+            "node": "Creating JSON & Test Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent For PDF": {
+      "main": [
+        [
+          {
+            "node": "Naming Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Naming Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent For Merging Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent For Merging Assistant": {
+      "main": [
+        [
+          {
+            "node": "Creating JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from MITC_KFS_PDFs": {
+      "main": [
+        [
+          {
+            "node": "Fetch Product Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creating JSON & Test Case": {
+      "main": [
+        [
+          {
+            "node": "AI Agent For PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creating JSON": {
+      "main": [
+        [
+          {
+            "node": "JSON To CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON To CSV": {
+      "main": [
+        [
+          {
+            "node": "Send email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "9vHJ15UOPNixQaAQ"
+  },
+  "versionId": "cf70bdd7-429c-4134-a29f-8320a3ee2c92",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efd3cca1affe402b656b44ca54f2e3b3296aaeba264e22e291089df5d03f07c8"
+  },
+  "id": "3w62TKQJnop2lsNb",
+  "tags": []
+}

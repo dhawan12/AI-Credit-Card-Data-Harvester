@@ -1,0 +1,68 @@
+{
+  "name": "Error Handling For Credit_Card_Data_Harvester",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bba10302-ce0d-4a2b-baf5-e29e3e4a4232",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "fromEmail": "namadhawan@gmail.com",
+        "toEmail": "namadhawan@gmail.com",
+        "subject": "=🔴 Error Alert: n8n Workflow \"{{ $json.workflow.name }}\" Failed",
+        "emailFormat": "text",
+        "text": "=Hello Team,\n\nAn error occurred in the n8n workflow \"{{ $json.workflow.name }}\".\n\n🧩 Failed Node: {{ $json.execution.lastNodeExecuted }}  \n❌ Error Message: {{ $json.execution.error.message }}\n\nPlease review the workflow and take the necessary actions.\n\nRegards,  \nn8n Automation System",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "2eef3d31-7628-4ed9-a9d7-f8a9f7984905",
+      "name": "Send email",
+      "webhookId": "65aee6b6-226d-4101-8bfd-e256b83ed380",
+      "credentials": {
+        "smtp": {
+          "id": "lw44e1mWdSZsrYT3",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "429f571e-53ca-4233-af71-636aeeae66a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efd3cca1affe402b656b44ca54f2e3b3296aaeba264e22e291089df5d03f07c8"
+  },
+  "id": "9vHJ15UOPNixQaAQ",
+  "tags": []
+}

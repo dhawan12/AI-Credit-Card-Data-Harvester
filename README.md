@@ -65,13 +65,7 @@ It uses Google Gemini (LLM) for intelligent data extraction, and n8n to orchestr
 
 ```
 
-├── workflows/
-│   ├── AI\_Credit\_Card\_Data\_Harvester.json
-│   └── Error\_Handling\_For\_Credit\_Card\_Data\_Harvester.json
-├── assets/
-│   └── screenshots/
-├── README.md
-└── .env (for API keys, SMTP)
+
 
 ```
 

@@ -128,4 +128,3 @@ This project is MIT Licensed.
 
 ---
 
-Let me know if you want this as a downloadable `.md` file or you'd like it split into multiple sections (Docs/Setup/etc.) for a professional GitHub project structure.
